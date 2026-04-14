@@ -1,0 +1,29 @@
+# ============================================================
+# Unreal Engine 5 — CICO_Simulation
+# Solo se sube: Source/, Config/, *.uproject, .gitignore
+# ============================================================
+
+# Carpetas generadas por UE (no versionar)
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Contenido de assets (excluido por ahora)
+Content/
+
+# Visual Studio
+.vs/
+*.sln
+*.suo
+*.user
+*.VC.db
+*.VC.opendb
+
+# Archivos de log
+*.log
+
+# Archivos temporales de Windows
+Thumbs.db
+Desktop.ini
