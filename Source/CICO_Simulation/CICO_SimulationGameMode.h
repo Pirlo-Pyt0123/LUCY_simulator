@@ -13,6 +13,11 @@ class ACICO_SimulationGameMode : public AGameModeBase
 
 public:
 	ACICO_SimulationGameMode();
+
+	virtual void BeginPlay() override;	
+
+
+
 };
 
 

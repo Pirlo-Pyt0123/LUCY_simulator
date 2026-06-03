@@ -15,7 +15,16 @@ public class CICO_Simulation : ModuleRules
 			"Json",
 			"JsonUtilities",
 			// Encoding de frames (JPEG/PNG) para enviar al backend
-			"ImageWrapper"
+			"ImageWrapper",
+			// IA y navegacion NavMesh para Pedestrian y Vehicle
+			"AIModule",
+			"NavigationSystem",
+			// UMG para widgets (RiskHUD)
+			"UMG",
+			"Slate",
+			"SlateCore",
+			// Media Player para video de fondo en el menu
+			"MediaAssets"
 		});
 	}
 }

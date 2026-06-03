@@ -9,7 +9,7 @@
 #include "LUCY.generated.h"
 
 class ACharacter;
-
+class URiskHUD;
 UCLASS()
 class CICO_SIMULATION_API ALUCY : public AActor
 {
@@ -18,7 +18,11 @@ class CICO_SIMULATION_API ALUCY : public AActor
 public:
 	ALUCY();
 
-	// Mesh del dron
+	// Raiz invisible — sobre esta se aplica SetActorRotation en Tick
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lucy")
+	USceneComponent* SceneRoot;
+
+	// Mesh del dron — cuelga de SceneRoot con su propio offset de rotacion
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lucy")
 	UStaticMeshComponent* MeshLUCY;
 
@@ -31,6 +35,10 @@ public:
 	UTextureRenderTarget2D* RenderTarget;
 
 	// --- Seguimiento del jugador ---
+
+	// Rotacion local del mesh del dron (ajustar hasta que quede recto)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lucy")
+	FRotator MeshRotationOffset;
 
 	// Offset relativo al jugador (X=adelante, Y=derecha, Z=arriba)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lucy|Follow")
@@ -47,6 +55,12 @@ public:
 	// Frecuencia del bobbing (ciclos por segundo)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lucy|Follow")
 	float BobFrequency;
+
+	// --- HUD ---
+
+	// Clase del widget (asignar WBP_RiskHUD en el editor)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lucy|HUD")
+	TSubclassOf<URiskHUD> RiskHUDClass;
 
 	// --- Backend StealthVision ---
 
@@ -70,8 +84,9 @@ public:
 
 private:
 	ACharacter* PlayerCharacter;
-	float ElapsedTime;
+	float       ElapsedTime;
 	FTimerHandle CaptureTimerHandle;
+	URiskHUD*   RiskHUDInstance;
 
 	// Captura el frame actual y lo envia al backend
 	void CaptureAndSend();
