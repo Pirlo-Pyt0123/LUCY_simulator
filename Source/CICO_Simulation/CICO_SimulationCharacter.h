@@ -11,6 +11,8 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class USoundBase;
+class UAudioComponent;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -46,7 +48,16 @@ class ACICO_SimulationCharacter : public ACharacter
 
 public:
 	ACICO_SimulationCharacter();
-	
+
+	virtual void Tick(float DeltaTime) override;
+
+	// Sonido de pasos (asignar en BP_ThirdPersonCharacter)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Audio")
+	USoundBase* FootstepSound;
+
+	// Velocidad minima para activar el sonido de movimiento
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Audio")
+	float FootstepSpeedThreshold = 10.f;
 
 protected:
 
@@ -55,14 +66,16 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
 
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
 	// To add mapping context
 	virtual void BeginPlay();
+
+private:
+	UAudioComponent* FootstepAudioComponent;
 
 public:
 	/** Returns CameraBoom subobject **/

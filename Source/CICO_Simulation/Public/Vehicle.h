@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
+#include "Components/AudioComponent.h"
 #include "Vehicle.generated.h"
 
 UCLASS()
@@ -51,6 +52,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Route")
 	float RotationSpeed;
 
+	// Distancia en cm a la que el vehiculo frena para no atropellar al jugador
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Route")
+	float StopForPlayerDistance;
+
+	// Sonido cercano (se activa cuando el jugador esta muy cerca)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Audio")
+	USoundBase* ProximitySound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Audio")
+	float ProximityDistance;
+
+	// Sonido lejano (se activa cuando el jugador esta a mayor distancia)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Audio")
+	USoundBase* ProximitySound2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Audio")
+	float ProximityDistance2;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -60,8 +79,15 @@ public:
 private:
 	int32 CurrentWaypointIndex;
 	bool  bIsWaiting;
+	bool  bProximityActive;
+	bool  bProximityActive2;
+	bool  bStoppedForPlayer;
 	FTimerHandle WaitTimerHandle;
+
+	UAudioComponent* ProximitySoundComponent;
+	UAudioComponent* ProximitySoundComponent2;
 
 	void ApplyRandomMesh();
 	void OnWaitFinished();
+	void UpdateProximitySound();
 };

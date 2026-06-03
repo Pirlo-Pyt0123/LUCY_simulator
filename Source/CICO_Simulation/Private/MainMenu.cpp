@@ -5,6 +5,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "MediaPlayer.h"
+#include "Sound/SoundBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -27,6 +28,10 @@ void UMainMenu::NativeConstruct()
 		BackgroundPlayer->Play();
 	}
 
+	// Musica de fondo del menu
+	if (MenuMusic)
+		UGameplayStatics::PlaySound2D(this, MenuMusic);
+
 	// Enlazar botones a sus funciones
 	if (BtnJugar)
 	{
@@ -41,12 +46,16 @@ void UMainMenu::NativeConstruct()
 
 void UMainMenu::OnJugarClicked()
 {
-	// Cargar el nivel principal — cambia "MainLevel" por el nombre real de tu nivel
+	if (ButtonClickSound)
+		UGameplayStatics::PlaySound2D(this, ButtonClickSound);
+
 	UGameplayStatics::OpenLevel(this, FName("ThirdPersonMap"));
 }
 
 void UMainMenu::OnSalirClicked()
 {
-	// Salir del juego
+	if (ButtonClickSound)
+		UGameplayStatics::PlaySound2D(this, ButtonClickSound);
+
 	UKismetSystemLibrary::QuitGame(this, nullptr, EQuitPreference::Quit, false);
 }

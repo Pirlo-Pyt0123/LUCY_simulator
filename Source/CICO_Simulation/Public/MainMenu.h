@@ -11,6 +11,7 @@ class UTextBlock;
 class UImage;
 class UMediaPlayer;
 class UMediaSource;
+class USoundBase;
 
 UCLASS()
 class CICO_SIMULATION_API UMainMenu : public UUserWidget
@@ -42,13 +43,19 @@ protected:
 	UPROPERTY(meta = (BindWidgetOptional))
 	UImage* ImgFondo;
 
-	// Media Player asignado desde el editor (arrastra el asset MP_MenuBackground)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu|Video")
 	UMediaPlayer* BackgroundPlayer;
 
-	// Media Source asignado desde el editor (el archivo de video)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu|Video")
 	UMediaSource* BackgroundSource;
+
+	// Musica de fondo del menu
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu|Audio")
+	USoundBase* MenuMusic;
+
+	// Sonido al hacer click en un boton
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu|Audio")
+	USoundBase* ButtonClickSound;
 
 private:
 	UFUNCTION()

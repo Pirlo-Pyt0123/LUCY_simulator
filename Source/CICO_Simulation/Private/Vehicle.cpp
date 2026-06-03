@@ -3,6 +3,8 @@
 #include "Vehicle.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/Character.h"
 
 AVehicle::AVehicle()
 {
@@ -27,8 +29,24 @@ AVehicle::AVehicle()
 	WaypointAcceptRadius = 200.f;
 	WaitTime             = 0.f;
 	RotationSpeed        = 4.f;
+	ProximityDistance    = 600.f;
+	ProximityDistance2   = 1200.f;
+	StopForPlayerDistance= 350.f;
 	CurrentWaypointIndex = 0;
 	bIsWaiting           = false;
+	bProximityActive     = false;
+	bProximityActive2    = false;
+	bStoppedForPlayer    = false;
+	ProximitySound       = nullptr;
+	ProximitySound2      = nullptr;
+
+	ProximitySoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ProximitySoundComponent"));
+	ProximitySoundComponent->SetupAttachment(CollisionBox);
+	ProximitySoundComponent->bAutoActivate = false;
+
+	ProximitySoundComponent2 = CreateDefaultSubobject<UAudioComponent>(TEXT("ProximitySoundComponent2"));
+	ProximitySoundComponent2->SetupAttachment(CollisionBox);
+	ProximitySoundComponent2->bAutoActivate = false;
 }
 
 void AVehicle::BeginPlay()
@@ -45,7 +63,17 @@ void AVehicle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsWaiting || Waypoints.Num() == 0) return;
+	UpdateProximitySound();
+
+	// Frenar si el jugador esta demasiado cerca
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (Player)
+	{
+		float DistToPlayer = FVector::Dist(GetActorLocation(), Player->GetActorLocation());
+		bStoppedForPlayer  = DistToPlayer <= StopForPlayerDistance;
+	}
+
+	if (bIsWaiting || bStoppedForPlayer || Waypoints.Num() == 0) return;
 
 	AActor* Target = Waypoints[CurrentWaypointIndex];
 	if (!Target) return;
@@ -77,6 +105,46 @@ void AVehicle::Tick(float DeltaTime)
 	FRotator TargetRotation = Direction.Rotation();
 	FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, RotationSpeed);
 	SetActorRotation(NewRotation);
+}
+
+void AVehicle::UpdateProximitySound()
+{
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (!Player) return;
+
+	float Dist = FVector::Dist(GetActorLocation(), Player->GetActorLocation());
+
+	// Sonido cercano
+	if (ProximitySound && ProximitySoundComponent)
+	{
+		if (Dist <= ProximityDistance && !bProximityActive)
+		{
+			ProximitySoundComponent->SetSound(ProximitySound);
+			ProximitySoundComponent->Play();
+			bProximityActive = true;
+		}
+		else if (Dist > ProximityDistance && bProximityActive)
+		{
+			ProximitySoundComponent->Stop();
+			bProximityActive = false;
+		}
+	}
+
+	// Sonido lejano
+	if (ProximitySound2 && ProximitySoundComponent2)
+	{
+		if (Dist <= ProximityDistance2 && !bProximityActive2)
+		{
+			ProximitySoundComponent2->SetSound(ProximitySound2);
+			ProximitySoundComponent2->Play();
+			bProximityActive2 = true;
+		}
+		else if (Dist > ProximityDistance2 && bProximityActive2)
+		{
+			ProximitySoundComponent2->Stop();
+			bProximityActive2 = false;
+		}
+	}
 }
 
 void AVehicle::ApplyRandomMesh()

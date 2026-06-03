@@ -10,6 +10,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Components/AudioComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -50,14 +53,33 @@ ACICO_SimulationCharacter::ACICO_SimulationCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	FootstepAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("FootstepAudio"));
+	FootstepAudioComponent->SetupAttachment(RootComponent);
+	FootstepAudioComponent->bAutoActivate = false;
 }
 
 void ACICO_SimulationCharacter::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
+}
+
+void ACICO_SimulationCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (!FootstepSound || !FootstepAudioComponent) return;
+
+	bool bMovingNow = GetCharacterMovement()->Velocity.Size2D() >= FootstepSpeedThreshold;
+
+	if (bMovingNow && !FootstepAudioComponent->IsPlaying())
+	{
+		FootstepAudioComponent->SetSound(FootstepSound);
+		FootstepAudioComponent->Play();
+	}
+	else if (!bMovingNow && FootstepAudioComponent->IsPlaying())
+	{
+		FootstepAudioComponent->Stop();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
